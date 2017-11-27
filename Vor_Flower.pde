@@ -42,21 +42,41 @@ import de.looksgood.ani.easing.*;
 import java.util.*;
 Voronoi vor = new Voronoi();
 ToxiclibsSupport gfx;
+PGraphics source;
+PGraphics wScan;
+PGraphics hScan;
+PShader scanner;
+float cellCount = 0.0;
 
-void setup() {
+void settings() {
   size(720,720,P2D);
   smooth(16);
+}
+void setup() {
   background(MyPallete.g("charcoal"));
   vor.addPoint(new Vec2D(width/2,height/2));
-  gfx = new ToxiclibsSupport(this);
+  scanner = loadShader("scanner.glsl");
+  source = createGraphics(720,720,P2D);
+  source.smooth(8);
+  gfx = new ToxiclibsSupport(this,source);
 }
 
 void draw() {
-  background(MyPallete.g("tin"));
-  strokeWeight(3);
-  noFill();
+  image(source,0,0);
 }
 
 void mousePressed() {
   vor.addPoint(new Vec2D(mouseX,mouseY));
+  noStroke();
+  source.beginDraw();
+  source.noStroke();
+  source.clear();
+  for (Polygon2D poly : vor.getRegions()) {
+    source.fill(random(255),random(255),random(255));
+    gfx.polygon2D(poly);
+  }
+  source.endDraw();
+}
+void prepwork() {
+
 }
