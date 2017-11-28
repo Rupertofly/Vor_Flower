@@ -67,12 +67,14 @@ void draw() {
 
 void mousePressed() {
   vor.addPoint(new Vec2D(mouseX,mouseY));
+  cellCount ++;
   noStroke();
   source.beginDraw();
-  source.noStroke();
+  source.stroke(255);
+  source.strokeWeight(cellCount);
   source.clear();
   for (Polygon2D poly : vor.getRegions()) {
-    source.fill(random(255),random(255),random(255));
+    source.fill(MyPallete.r());
     gfx.polygon2D(poly);
   }
   source.endDraw();
