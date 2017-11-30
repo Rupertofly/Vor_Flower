@@ -47,7 +47,7 @@ PGraphics wScan;
 PGraphics hScan;
 PShader scanner;
 float cellCount = 0.0;
-
+ArrayList<FPoint> points = new ArrayList<FPoint>();
 void settings() {
   size(720,720,P2D);
   smooth(16);
@@ -55,6 +55,7 @@ void settings() {
 void setup() {
   background(MyPallete.g("charcoal"));
   vor.addPoint(new Vec2D(width/2,height/2));
+  points.add(new FPoint(width/2,height/2,MyPallete.r(),0));
   scanner = loadShader("scanner.glsl");
   source = createGraphics(720,720,P2D);
   source.smooth(8);
@@ -67,18 +68,37 @@ void draw() {
 
 void mousePressed() {
   vor.addPoint(new Vec2D(mouseX,mouseY));
+  points.add(new FPoint(mouseX,mouseY,MyPallete.r(),points.size()));
   cellCount ++;
-  noStroke();
+  redrawsource();
+
+}
+void prepwork() {
+
+}
+void redrawsource() {
   source.beginDraw();
   source.stroke(255);
   source.strokeWeight(cellCount);
   source.clear();
-  for (Polygon2D poly : vor.getRegions()) {
+  int count = 0;
+  for (Triangle2D poly : vor.getTriangles()) {
+    println("points.size: "+vor.getRegions());
+    //FPoint data = points.get(count);
     source.fill(MyPallete.r());
-    gfx.polygon2D(poly);
+    gfx.triangle(poly);
+    count++;
   }
   source.endDraw();
 }
-void prepwork() {
-
+public class FPoint {
+  public float x,y;
+  public int c;
+  public int ind;
+  FPoint(float _x, float _y, int _c, int _ind) {
+    x = _x;
+    y = _y;
+    c = _c;
+    ind = _ind;
+  }
 }

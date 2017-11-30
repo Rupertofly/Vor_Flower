@@ -1,10 +1,15 @@
+#version 140
 uniform vec2 iResolution;
 uniform float cellCount;
 uniform sampler2D tex;
-uniform  int progCode;
+uniform int progCode;
 
 void main(){
-  switch(progCode) {
+  int j = progCode;
+  if (j==0){
 
-  }
+  } else if (j==1){
+  }else {
+
+   }
 }
