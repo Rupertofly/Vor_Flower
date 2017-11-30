@@ -40,56 +40,66 @@ import toxi.volume.*;
 import de.looksgood.ani.*;
 import de.looksgood.ani.easing.*;
 import java.util.*;
-Voronoi vor = new Voronoi();
 ToxiclibsSupport gfx;
-PGraphics source;
-PGraphics wScan;
-PGraphics hScan;
-PShader scanner;
+PGraphics bPallete;
+PGraphics bSource;
+PGraphics bFront;
+PGraphics bBack;
+PGraphics bFinal;
+
+PGraphics bXScan;
+PGraphics bYScan;
+PShader sJFA;
 float cellCount = 0.0;
-ArrayList<FPoint> points = new ArrayList<FPoint>();
+ArrayList<FPoint> aPointSet = new ArrayList<FPoint>();
 void settings() {
-  size(720,720,P2D);
-  smooth(16);
+  size(1080,1080,P3D);
+
 }
 void setup() {
-  background(MyPallete.g("charcoal"));
-  vor.addPoint(new Vec2D(width/2,height/2));
-  points.add(new FPoint(width/2,height/2,MyPallete.r(),0));
-  scanner = loadShader("scanner.glsl");
-  source = createGraphics(720,720,P2D);
-  source.smooth(8);
-  gfx = new ToxiclibsSupport(this,source);
+  aPointSet.add(new FPoint(width/2,height/2,MyPallete.r(),0));
+  sJFA = loadShader("jfa.glsl");
+  bSource = createGraphics(width,height,P2D);
+  bSource.noSmooth();
+  bFront = createGraphics(width,height,P2D);
+  bBack = createGraphics(width,height,P2D);
+  bFinal = createGraphics(width,height,P2D);
+  bPallete = createGraphics(width,height,P2D);
 }
 
 void draw() {
-  image(source,0,0);
+  background(0);
+  image(bBack,0,0);
+  image(bPallete,0,0);
 }
 
-void mousePressed() {
-  vor.addPoint(new Vec2D(mouseX,mouseY));
-  points.add(new FPoint(mouseX,mouseY,MyPallete.r(),points.size()));
+void mouseClicked() {
+
+  aPointSet.add(new FPoint(mouseX,mouseY,MyPallete.r(),aPointSet.size()));
   cellCount ++;
   redrawsource();
-
+  println("cellCount: "+cellCount);
 }
+
 void prepwork() {
 
 }
 void redrawsource() {
-  source.beginDraw();
-  source.stroke(255);
-  source.strokeWeight(cellCount);
-  source.clear();
-  int count = 0;
-  for (Triangle2D poly : vor.getTriangles()) {
-    println("points.size: "+vor.getRegions());
-    //FPoint data = points.get(count);
-    source.fill(MyPallete.r());
-    gfx.triangle(poly);
-    count++;
+  bSource.beginDraw();
+  bSource.clear();
+  for (int i = 0; i < aPointSet.size(); ++i) {
+    FPoint c = aPointSet.get(i);
+    bSource.set((int)c.x,(int)c.y,encodepos((int)c.x,(int)c.y));
   }
-  source.endDraw();
+  bSource.endDraw();
+  bPallete.beginDraw();
+  bPallete.clear();
+  for (int i = 0; i < aPointSet.size(); ++i) {
+    FPoint l = aPointSet.get(i);
+    bPallete.set((int)l.x,(int)l.y,l.c);
+  }
+  bPallete.endDraw();
+  jfa();
 }
 public class FPoint {
   public float x,y;
@@ -101,4 +111,39 @@ public class FPoint {
     c = _c;
     ind = _ind;
   }
+}
+color encodepos(float _x, float _y) {
+  color col = color(
+                floor(_x / 255),
+                (_x % 255),
+                floor(_y / 255),
+                (_y % 255));
+  return col;
+}
+void jfa() {
+  int steps = floor(log2(width));
+  for (int indexPos = 0; indexPos < steps; ++indexPos) {
+    float stepJump = pow(2, steps-indexPos+1);
+    if (indexPos == 0) bBack = bSource;
+    sJFA.set("iResolution",(float)width,(float)height);
+    sJFA.set("texIn",bBack);
+    sJFA.set("fIndex",(float)indexPos);
+    sJFA.set("fJump",(float)stepJump);
+    bFront.beginDraw();
+    bFront.clear();
+    bFront.noStroke();
+    bFront.fill(255);
+    bFront.shader(sJFA);
+    bFront.rect(0,0,width,height);
+    bFront.endDraw();
+    bBack.beginDraw();
+    bBack.clear();
+    bBack.image(bFront,0,0);
+    bBack.endDraw();
+    println("stepJump: "+stepJump);
+  }
+}
+
+float log2 (int x) {
+  return (log(x) / log(2));
 }
