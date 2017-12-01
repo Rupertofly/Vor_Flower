@@ -53,7 +53,7 @@ PShader sJFA;
 float cellCount = 0.0;
 ArrayList<FPoint> aPointSet = new ArrayList<FPoint>();
 void settings() {
-  size(1080,1080,P3D);
+  size(256,256,P3D);
 
 }
 void setup() {
@@ -96,7 +96,9 @@ void redrawsource() {
   bPallete.clear();
   for (int i = 0; i < aPointSet.size(); ++i) {
     FPoint l = aPointSet.get(i);
-    bPallete.set((int)l.x,(int)l.y,l.c);
+    bPallete.noStroke();
+    bPallete.fill(l.c);
+    bPallete.ellipse((int)l.x,(int)l.y,3,3);
   }
   bPallete.endDraw();
   jfa();
@@ -123,7 +125,7 @@ color encodepos(float _x, float _y) {
 void jfa() {
   int steps = floor(log2(width));
   for (int indexPos = 0; indexPos < steps; ++indexPos) {
-    float stepJump = pow(2, steps-indexPos+1);
+    float stepJump = pow(2, steps-indexPos -1);
     if (indexPos == 0) bBack = bSource;
     sJFA.set("iResolution",(float)width,(float)height);
     sJFA.set("texIn",bBack);
