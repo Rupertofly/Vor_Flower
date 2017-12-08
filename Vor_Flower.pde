@@ -113,7 +113,8 @@ void mouseClicked() {
   cellCount ++;
   redrawsource();
   println("cellCount: "+cellCount);
-  bSource.save("blip.png");
+  bSource.save("source.png");
+  bFinal.save("final.png");
 }
 
 void test() {

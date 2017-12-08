@@ -37,7 +37,7 @@ void main(){
   FragColor = vec4(pUV,0.1,1.0);
   vec4 samTex = texture(pIn,pUV);
   if (samTex.r > 0.1){
-    FragColor = vec4(0.0,0.0,0.0,1.0);
+    FragColor = samTex;
   }
 
 }
